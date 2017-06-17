@@ -1,4 +1,4 @@
-import providers from './providers/index';
+import providers from './providers/aws';
 import icon from './icon';
 
 // const startTimeout = .1 * 60 * 1000; //15000;
@@ -28,10 +28,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 setTimeout(function interval() {
-	providers.yandex.update()
+	providers.update()
 		.then(data => {
-			console.log(data);
-
 			data.usd.forEach(item => {
 				item.date = Number(item.date);
 			});

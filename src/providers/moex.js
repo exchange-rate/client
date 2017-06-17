@@ -16,7 +16,7 @@ const URL = 'http://moex.com/iss/engines/currency/markets/selt/boards/CETS/secur
 const USD_URL = URL + 'USD000UTSTOM.jsonp?iss.meta=off&iss.only=marketdata&lang=ru&_=';
 const EUR_URL = URL + 'EUR_RUB__TOM.jsonp?iss.meta=off&iss.only=marketdata&lang=ru&_=';
 
-const YQL = `select * from yahoo.finance.xchange where pair="EURUAH,USDUAH,EURRUB,USDRUB" & format=json & env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys & callback=#query/results/rate/0`
+const YQL = `select * from yahoo.finance.xchange where pair="EURUAH,USDUAH,EURRUB,USDRUB" & format=json & env=store://datatables.org/alltableswithkeys & callback=#query/results/rate/0`
 
 `https://query.yahooapis.com/v1/public/yql?q=select+*+from+yahoo.finance.xchange+where+pair+=+%22EURUAH,USDUAH,EURRUB,USDRUB%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=#query/results/rate/0`
 
