@@ -1,0 +1,123 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+
+	<defs>
+		<linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="2.38%" stop-color="rgb(218, 38, 40)"></stop>
+			<stop offset="4.76%" stop-color="rgb(234, 26, 33)"></stop>
+			<stop offset="7.14%" stop-color="rgb(227, 32, 36)"></stop>
+			<stop offset="9.52%" stop-color="rgb(221, 36, 38)"></stop>
+			<stop offset="11.9%" stop-color="rgb(225, 33, 37)"></stop>
+			<stop offset="14.28%" stop-color="rgb(212, 43, 42)"></stop>
+			<stop offset="16.666%" stop-color="rgb(204, 49, 46)"></stop>
+			<stop offset="19.05%" stop-color="rgb(198, 54, 49)"></stop>
+			<stop offset="21.43%" stop-color="rgb(148, 93, 71)"></stop>
+			<stop offset="23.8%" stop-color="rgb(113, 119, 86)"></stop>
+			<stop offset="26.19%" stop-color="rgb(158, 84, 66)"></stop>
+			<stop offset="28.57%" stop-color="rgb(128, 108, 79)"></stop>
+			<stop offset="30.95%" stop-color="rgb(132, 105, 77)"></stop>
+			<stop offset="33.33%" stop-color="rgb(140, 99, 74)"></stop>
+			<stop offset="%" stop-color="rgb(74, 150, 103)"></stop>
+			<stop offset="%" stop-color="rgb(59, 162, 109)"></stop>
+			<stop offset="%" stop-color="rgb(47, 171, 115)"></stop>
+			<stop offset="%" stop-color="rgb(54, 165, 111)"></stop>
+			<stop offset="%" stop-color="rgb(66, 156, 106)"></stop>
+			<stop offset="%" stop-color="rgb(54, 165, 111)"></stop>
+			<stop offset="%" stop-color="rgb(80, 145, 100)"></stop>
+			<stop offset="%" stop-color="rgb(83, 143, 99)"></stop>
+			<stop offset="%" stop-color="rgb(69, 153, 105)"></stop>
+			<stop offset="%" stop-color="rgb(106, 125, 89)"></stop>
+			<stop offset="%" stop-color="rgb(118, 115, 83)"></stop>
+			<stop offset="%" stop-color="rgb(91, 136, 95)"></stop>
+			<stop offset="%" stop-color="rgb(87, 139, 97)"></stop>
+			<stop offset="%" stop-color="rgb(108, 123, 88)"></stop>
+			<stop offset="%" stop-color="rgb(98, 131, 92)"></stop>
+			<stop offset="%" stop-color="rgb(107, 124, 88)"></stop>
+			<stop offset="%" stop-color="rgb(128, 108, 79)"></stop>
+			<stop offset="%" stop-color="rgb(126, 110, 80)"></stop>
+			<stop offset="%" stop-color="rgb(117, 117, 84)"></stop>
+			<stop offset="%" stop-color="rgb(117, 116, 84)"></stop>
+			<stop offset="%" stop-color="rgb(111, 121, 87)"></stop>
+			<stop offset="%" stop-color="rgb(120, 115, 83)"></stop>
+			<stop offset="%" stop-color="rgb(120, 114, 83)"></stop>
+			<stop offset="%" stop-color="rgb(86, 140, 97)"></stop>
+			<stop offset="%" stop-color="rgb(76, 148, 102)"></stop>
+			<stop offset="%" stop-color="rgb(78, 147, 101)"></stop>
+			<stop offset="%" stop-color="rgb(74, 150, 103)"></stop>
+			<stop offset="%" stop-color="rgb(77, 147, 101)"></stop>
+
+
+			<stop offset="0%" stop-color="#05a"/>
+			<stop offset="50%" stop-color="#a55"/>
+			<stop offset="100%" stop-color="#0a5"/>
+		</linearGradient>
+	</defs>
+
+	<polyline
+		fill="none"
+		stroke="url(#linear)"
+		stroke-width="3"
+		stroke-linejoin="round"
+		stroke-linecap="round"
+		points="
+			10,  186.5443425076438
+			20,  200
+			30,  193.88379204892837
+			40,  189.23547400611363
+			50,  192.1712538226275
+			60,  181.4067278287446
+			70,  174.55657492354453
+			80,  168.92966360856087
+			90,  126.1162079510699
+			100, 97.00305810397563
+			110, 135.41284403669584
+			120, 109.72477064220337
+			130, 112.90519877675766
+			140, 119.51070336391379
+			150, 63.24159021406663
+			160, 50.03058103975789
+			170, 40
+			180, 46.11620795107163
+			190, 56.39143730887002
+			200, 46.11620795107163
+			210, 68.13455657492533
+			220, 70.5810397553512
+			230, 59.32721712538385
+			240, 90.886850152904
+			250, 101.1620795107024
+			260, 78.16513761467974
+			270, 74.74006116208143
+			280, 92.3547400611609
+			290, 84.03669724770738
+			300, 91.37614678899195
+			310, 108.99082568807489
+			320, 107.27828746177401
+			330, 99.93883792048945
+			340, 100.18348623853343
+			350, 95.04587155963424
+			360, 102.14067278287482
+			370, 102.87461773700328
+			380, 73.761467889909
+			390, 65.1987767584115
+			400, 66.6666666666684
+			410, 62.99694189602613
+			420, 66.17737003058045
+		"
+
+	/>
+
+	<!--<g transform="translate(20 20)">
+		<g transform="translate(0 0)">
+			<line fill="none" stroke-width="1" stroke="black" x1="0" y1="0" x2="10" y2="0"
+			      transform="translate(0 -.5)"/>
+			<text x="15" y="0" text-anchor="start" alignment-baseline="middle">1</text>
+		</g>
+		<g transform="translate(0 20)">
+			<line fill="none" stroke="black" x1="0" y1="0" x2="10" y2="0" transform="translate(0 -.5)"/>
+			<text x="15" y="0" text-anchor="start" alignment-baseline="middle">2</text>
+		</g>
+		<g transform="translate(0 40)">
+			<line fill="none" stroke="black" x1="0" y1="0" x2="10" y2="0" transform="translate(0 -.5)"/>
+			<text x="15" y="0" text-anchor="start" alignment-baseline="middle">3</text>
+		</g>
+	</g>-->
+</svg>

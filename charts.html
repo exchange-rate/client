@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title></title>
+	<!--<script src="d3.min.js"></script>-->
+	<style>
+		.chart {
+			display: flex;
+			align-content: stretch;
+			align-items: flex-end;
+			height: 100px;
+		}
+
+		.chart > div {
+			display: flex;
+			flex: 1;
+			position: relative;
+			background-image: linear-gradient(to top, #01cd8e 0%, #bfec8f 100px);
+		}
+
+		.chart > div > span {
+			display: none;
+			position: absolute;
+			bottom: 100%;
+		}
+
+		.chart > div:hover {
+			z-index: 1;
+			background-image: linear-gradient(to top, #02e73f 0%, #e0f240 100%);
+		}
+
+		.chart > div:hover > span {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="chart">
+
+	</div>
+
+	<script src="charts.js"></script>
+
+</body>
+</html>
