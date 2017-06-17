@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 88);
+/******/ 	return __webpack_require__(__webpack_require__.s = 87);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -256,841 +256,6 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-
-/***/ }),
-
-/***/ 190:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _dynamoConverters = __webpack_require__(191);
-
-var _dynamoConverters2 = _interopRequireDefault(_dynamoConverters);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var awsKey = 'n2ZKFrQL5Z5YNKb3tio4j4vtwPUVTrOi7hTveQnJ';
-var startDate = new Date(2017, 4, 12);
-var endDate = new Date(2017, 4, 9);
-
-function formatDate(date) {
-	return date.toISOString().slice(0, 10);
-}
-
-var url = 'https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange?before_date=' + formatDate(startDate) + '&after_date=' + formatDate(endDate);
-var request = new Request(url, {
-	headers: new Headers({
-		'x-api-key': awsKey
-	})
-});
-
-exports.default = {
-	update: function update() {
-		return fetch(request).then(function (response) {
-			return response.json();
-		}).then(function (data) {
-			var result = {
-				usd: [],
-				eur: []
-			};
-
-			data.Items.forEach(function (awsItem) {
-				var item = _dynamoConverters2.default.itemToData(awsItem);
-				var date = new Date(item.date);
-
-				result.usd.push({
-					date: date,
-					value: item.currencies.USDRUB.rate
-				});
-
-				result.eur.push({
-					date: date,
-					value: item.currencies.EURRUB.rate
-				});
-			});
-
-			return result;
-		});
-	}
-};
-
-/***/ }),
-
-/***/ 191:
-/***/ (function(module, exports, __webpack_require__) {
-
-const reservedWords = __webpack_require__(192);
-const util = __webpack_require__(195);
-
-function convert (value) {
-    if (value === null) {
-        return {
-            NULL: true
-        };
-    }
-
-    if (typeof value === 'boolean') {
-        return {
-            BOOL: value
-        };
-    }
-
-    if (typeof value === 'number') {
-        return {
-            N: value.toString()
-        };
-    }
-
-    if (typeof value === 'string') {
-        return {
-            S: value
-        };
-    }
-
-    if (util.isArray(value)) {
-        return {
-            L: value.map(convert)
-        };
-    }
-
-    if (typeof value === 'object') {
-        const map = {};
-
-        for (const key in value) {
-            if (value[key] !== undefined) {
-                map[key] = convert(value[key]);
-            }
-        }
-
-        return {
-            M: map
-        };
-    }
-
-    throw new Error('Unsupported data type');
-}
-
-function isReservedWord (property) {
-    return reservedWords.some(function (reservedWord) {
-        return reservedWord === property.toUpperCase();
-    });
-}
-
-function formStatement (property, expressionAttributeNames) {
-    if (isReservedWord(property)) {
-        expressionAttributeNames['#' + property] = property;
-
-        return '#' + property + ' = :' + property;
-    }
-
-    return property + ' = :' + property;
-}
-
-module.exports = {
-
-    dataToItem: function (data) { // eslint-disable-line object-shorthand
-        const item = {};
-        const now = Date.now();
-
-        for (const property in data) {
-            if (data[property] !== undefined) {
-                item[property] = convert(data[property]);
-            }
-        }
-
-        item.created = {
-            N: now.toString()
-        };
-        item.modified = {
-            N: now.toString()
-        };
-
-        return item;
-    },
-
-    deltaToExpression: function (delta) { // eslint-disable-line object-shorthand
-        const expressionAttributeNames = {};
-        const expressionAttributeValues = {};
-        const removeStatements = [];
-        const setStatements = [];
-        const updateExpressions = [];
-
-        setStatements.push('modified = :modified');
-        expressionAttributeValues[':modified'] = {
-            N: Date.now().toString()
-        };
-
-        for (const property in delta) {
-            const value = delta[property];
-
-            if (value === undefined) {
-                if (isReservedWord(property)) {
-                    expressionAttributeNames['#' + property] = property;
-                    removeStatements.push('#' + property);
-                } else {
-                    removeStatements.push(property);
-                }
-            } else if (typeof value === 'boolean' ||
-                    typeof value === 'number' ||
-                    typeof value === 'string' ||
-                    typeof value === 'object') {
-                setStatements.push(formStatement(property, expressionAttributeNames));
-                expressionAttributeValues[':' + property] = convert(value);
-            }
-        }
-
-        if (removeStatements.length > 0) {
-            updateExpressions.push('REMOVE ' + removeStatements.join(', '));
-        }
-        if (setStatements.length > 0) {
-            updateExpressions.push('SET ' + setStatements.join(', '));
-        }
-
-        return {
-            expressionAttributeNames: (Object.keys(expressionAttributeNames).length > 0) ? expressionAttributeNames : undefined,
-            expressionAttributeValues: expressionAttributeValues, // eslint-disable-line object-shorthand
-            updateExpression: updateExpressions.join(' ')
-        };
-    },
-
-    itemToData: function (item) { // eslint-disable-line object-shorthand
-        const data = {};
-
-        function parse (value) {
-            if (value.BOOL !== undefined) {
-                return value.BOOL;
-            }
-
-            if (value.L !== undefined) {
-                return value.L.map(parse);
-            }
-
-            if (value.M !== undefined) {
-                const map = {};
-
-                for (const key in value.M) {
-                    map[key] = parse(value.M[key]);
-                }
-
-                return map;
-            }
-
-            if (value.N !== undefined) {
-                if (value.N.match(/\./)) {
-                    return parseFloat(value.N);
-                }
-
-                return parseInt(value.N, 10);
-            }
-
-            if (value.NULL === true) {
-                return null;
-            }
-
-            if (value.S !== undefined) {
-                return value.S;
-            }
-
-            throw new Error('Unsupported data type');
-        }
-
-        for (const property in item) {
-            if (item[property] !== undefined) {
-                data[property] = parse(item[property]);
-            }
-        }
-
-        return data;
-    }
-
-};
-
-
-/***/ }),
-
-/***/ 192:
-/***/ (function(module, exports) {
-
-module.exports = [
-	"ABORT",
-	"ABSOLUTE",
-	"ACTION",
-	"ADD",
-	"AFTER",
-	"AGENT",
-	"AGGREGATE",
-	"ALL",
-	"ALLOCATE",
-	"ALTER",
-	"ANALYZE",
-	"AND",
-	"ANY",
-	"ARCHIVE",
-	"ARE",
-	"ARRAY",
-	"AS",
-	"ASC",
-	"ASCII",
-	"ASENSITIVE",
-	"ASSERTION",
-	"ASYMMETRIC",
-	"AT",
-	"ATOMIC",
-	"ATTACH",
-	"ATTRIBUTE",
-	"AUTH",
-	"AUTHORIZATION",
-	"AUTHORIZE",
-	"AUTO",
-	"AVG",
-	"BACK",
-	"BACKUP",
-	"BASE",
-	"BATCH",
-	"BEFORE",
-	"BEGIN",
-	"BETWEEN",
-	"BIGINT",
-	"BINARY",
-	"BIT",
-	"BLOB",
-	"BLOCK",
-	"BOOLEAN",
-	"BOTH",
-	"BREADTH",
-	"BUCKET",
-	"BULK",
-	"BY",
-	"BYTE",
-	"CALL",
-	"CALLED",
-	"CALLING",
-	"CAPACITY",
-	"CASCADE",
-	"CASCADED",
-	"CASE",
-	"CAST",
-	"CATALOG",
-	"CHAR",
-	"CHARACTER",
-	"CHECK",
-	"CLASS",
-	"CLOB",
-	"CLOSE",
-	"CLUSTER",
-	"CLUSTERED",
-	"CLUSTERING",
-	"CLUSTERS",
-	"COALESCE",
-	"COLLATE",
-	"COLLATION",
-	"COLLECTION",
-	"COLUMN",
-	"COLUMNS",
-	"COMBINE",
-	"COMMENT",
-	"COMMIT",
-	"COMPACT",
-	"COMPILE",
-	"COMPRESS",
-	"CONDITION",
-	"CONFLICT",
-	"CONNECT",
-	"CONNECTION",
-	"CONSISTENCY",
-	"CONSISTENT",
-	"CONSTRAINT",
-	"CONSTRAINTS",
-	"CONSTRUCTOR",
-	"CONSUMED",
-	"CONTINUE",
-	"CONVERT",
-	"COPY",
-	"CORRESPONDING",
-	"COUNT",
-	"COUNTER",
-	"CREATE",
-	"CROSS",
-	"CUBE",
-	"CURRENT",
-	"CURSOR",
-	"CYCLE",
-	"DATA",
-	"DATABASE",
-	"DATE",
-	"DATETIME",
-	"DAY",
-	"DEALLOCATE",
-	"DEC",
-	"DECIMAL",
-	"DECLARE",
-	"DEFAULT",
-	"DEFERRABLE",
-	"DEFERRED",
-	"DEFINE",
-	"DEFINED",
-	"DEFINITION",
-	"DELETE",
-	"DELIMITED",
-	"DEPTH",
-	"DEREF",
-	"DESC",
-	"DESCRIBE",
-	"DESCRIPTOR",
-	"DETACH",
-	"DETERMINISTIC",
-	"DIAGNOSTICS",
-	"IRECTORIES",
-	"DISABLE",
-	"DISCONNECT",
-	"DISTINCT",
-	"DISTRIBUTE",
-	"DO",
-	"DOMAIN",
-	"DOUBLE",
-	"DROP",
-	"DUMP",
-	"DURATION",
-	"DYNAMIC",
-	"EACH",
-	"ELEMENT",
-	"ELSE",
-	"ELSEIF",
-	"EMPTY",
-	"ENABLE",
-	"END",
-	"EQUAL",
-	"EQUALS",
-	"ERROR",
-	"ESCAPE",
-	"ESCAPED",
-	"EVAL",
-	"EVALUATE",
-	"EXCEEDED",
-	"EXCEPT",
-	"EXCEPTION",
-	"EXCEPTIONS",
-	"EXCLUSIVE",
-	"EXEC",
-	"EXECUTE",
-	"EXISTS",
-	"EXIT",
-	"EXPLAIN",
-	"EXPLODE",
-	"EXPORT",
-	"EXPRESSION",
-	"EXTENDED",
-	"EXTERNAL",
-	"EXTRACT",
-	"FAIL",
-	"FALSE",
-	"FAMILY",
-	"FETCH",
-	"FIELDS",
-	"FILE",
-	"FILTER",
-	"FILTERING",
-	"FINAL",
-	"FINISH",
-	"FIRST",
-	"FIXED",
-	"FLATTERN",
-	"FLOAT",
-	"FOR",
-	"FORCE",
-	"FOREIGN",
-	"FORMAT",
-	"FORWARD",
-	"FOUND",
-	"FREE",
-	"FROM",
-	"FUNCTION",
-	"FUNCTIONS",
-	"GENERAL",
-	"GENERATE",
-	"GET",
-	"GLOB",
-	"GLOBAL",
-	"GO",
-	"GOTO",
-	"GRANT",
-	"GREATER",
-	"GROUP",
-	"GROUPING",
-	"HANDLER",
-	"HASH",
-	"HAVE",
-	"HAVING",
-	"HEAP",
-	"HIDDEN",
-	"HOLD",
-	"HOUR",
-	"IDENTIFIED",
-	"IDENTITY",
-	"IF",
-	"IGNORE",
-	"IMMEDIATE",
-	"IMPORT",
-	"IN",
-	"INCLUDING",
-	"INCLUSIVE",
-	"INCREMENT",
-	"INCREMENTAL",
-	"INDEX",
-	"INDEXED",
-	"INDEXES",
-	"INDICATOR",
-	"INFINITE",
-	"INITIALLY",
-	"INLINE",
-	"INNER",
-	"INNTER",
-	"INOUT",
-	"INPUT",
-	"INSENSITIVE",
-	"INSERT",
-	"INSTEAD",
-	"INT",
-	"INTEGER",
-	"INTERSECT",
-	"INTERVAL",
-	"INTO",
-	"INVALIDATE",
-	"IS",
-	"ISOLATION",
-	"ITEM",
-	"ITEMS",
-	"ITERATE",
-	"JOIN",
-	"KEY",
-	"KEYS",
-	"LAG",
-	"LANGUAGE",
-	"LARGE",
-	"LAST",
-	"LATERAL",
-	"LEAD",
-	"LEADING",
-	"LEAVE",
-	"LEFT",
-	"LENGTH",
-	"LESS",
-	"LEVEL",
-	"LIKE",
-	"LIMIT",
-	"LIMITED",
-	"LINES",
-	"LIST",
-	"LOAD",
-	"LOCAL",
-	"LOCALTIME",
-	"LOCALTIMESTAMP",
-	"LOCATION",
-	"LOCATOR",
-	"LOCK",
-	"LOCKS",
-	"LOG",
-	"LOGED",
-	"LONG",
-	"LOOP",
-	"LOWER",
-	"MAP",
-	"MATCH",
-	"MATERIALIZED",
-	"MAX",
-	"MAXLEN",
-	"MEMBER",
-	"MERGE",
-	"METHOD",
-	"METRICS",
-	"MIN",
-	"MINUS",
-	"MINUTE",
-	"MISSING",
-	"MOD",
-	"MODE",
-	"MODIFIES",
-	"MODIFY",
-	"MODULE",
-	"MONTH",
-	"MULTI",
-	"MULTISET",
-	"NAME",
-	"NAMES",
-	"NATIONAL",
-	"NATURAL",
-	"NCHAR",
-	"NCLOB",
-	"NEW",
-	"NEXT",
-	"NO",
-	"NONE",
-	"NOT",
-	"NULL",
-	"NULLIF",
-	"NUMBER",
-	"NUMERIC",
-	"OBJECT",
-	"OF",
-	"OFFLINE",
-	"OFFSET",
-	"OLD",
-	"ON",
-	"ONLINE",
-	"ONLY",
-	"OPAQUE",
-	"OPEN",
-	"OPERATOR",
-	"OPTION",
-	"OR",
-	"ORDER",
-	"ORDINALITY",
-	"OTHER",
-	"OTHERS",
-	"OUT",
-	"OUTER",
-	"OUTPUT",
-	"OVER",
-	"OVERLAPS",
-	"OVERRIDE",
-	"OWNER",
-	"PAD",
-	"PARALLEL",
-	"PARAMETER",
-	"PARAMETERS",
-	"PARTIAL",
-	"PARTITION",
-	"PARTITIONED",
-	"PARTITIONS",
-	"PATH",
-	"PERCENT",
-	"PERCENTILE",
-	"PERMISSION",
-	"PERMISSIONS",
-	"PIPE",
-	"PIPELINED",
-	"PLAN",
-	"POOL",
-	"POSITION",
-	"PRECISION",
-	"PREPARE",
-	"PRESERVE",
-	"PRIMARY",
-	"PRIOR",
-	"PRIVATE",
-	"PRIVILEGES",
-	"PROCEDURE",
-	"PROCESSED",
-	"PROJECT",
-	"PROJECTION",
-	"PROPERTY",
-	"PROVISIONING",
-	"PUBLIC",
-	"PUT",
-	"QUERY",
-	"QUIT",
-	"QUORUM",
-	"RAISE",
-	"RANDOM",
-	"RANGE",
-	"RANK",
-	"RAW",
-	"READ",
-	"READS",
-	"REAL",
-	"REBUILD",
-	"RECORD",
-	"RECURSIVE",
-	"REDUCE",
-	"REF",
-	"REFERENCE",
-	"REFERENCES",
-	"REFERENCING",
-	"REGEXP",
-	"REGION",
-	"REINDEX",
-	"RELATIVE",
-	"RELEASE",
-	"REMAINDER",
-	"RENAME",
-	"REPEAT",
-	"REPLACE",
-	"REQUEST",
-	"RESET",
-	"RESIGNAL",
-	"RESOURCE",
-	"RESPONSE",
-	"RESTORE",
-	"RESTRICT",
-	"RESULT",
-	"RETURN",
-	"RETURNING",
-	"RETURNS",
-	"REVERSE",
-	"REVOKE",
-	"RIGHT",
-	"ROLE",
-	"ROLES",
-	"ROLLBACK",
-	"ROLLUP",
-	"ROUTINE",
-	"ROW",
-	"ROWS",
-	"RULE",
-	"RULES",
-	"SAMPLE",
-	"SATISFIES",
-	"SAVE",
-	"SAVEPOINT",
-	"SCAN",
-	"SCHEMA",
-	"SCOPE",
-	"SCROLL",
-	"SEARCH",
-	"SECOND",
-	"SECTION",
-	"SEGMENT",
-	"SEGMENTS",
-	"SELECT",
-	"SELF",
-	"SEMI",
-	"SENSITIVE",
-	"SEPARATE",
-	"SEQUENCE",
-	"SERIALIZABLE",
-	"SESSION",
-	"SET",
-	"SETS",
-	"SHARD",
-	"SHARE",
-	"SHARED",
-	"SHORT",
-	"SHOW",
-	"SIGNAL",
-	"SIMILAR",
-	"SIZE",
-	"SKEWED",
-	"SMALLINT",
-	"SNAPSHOT",
-	"SOME",
-	"SOURCE",
-	"SPACE",
-	"SPACES",
-	"SPARSE",
-	"SPECIFIC",
-	"SPECIFICTYPE",
-	"SPLIT",
-	"SQL",
-	"SQLCODE",
-	"SQLERROR",
-	"SQLEXCEPTION",
-	"SQLSTATE",
-	"SQLWARNING",
-	"START",
-	"STATE",
-	"STATIC",
-	"STATUS",
-	"STORAGE",
-	"STORE",
-	"STORED",
-	"STREAM",
-	"STRING",
-	"STRUCT",
-	"STYLE",
-	"SUB",
-	"SUBMULTISET",
-	"SUBPARTITION",
-	"SUBSTRING",
-	"SUBTYPE",
-	"SUM",
-	"SUPER",
-	"SYMMETRIC",
-	"SYNONYM",
-	"SYSTEM",
-	"TABLE",
-	"TABLESAMPLE",
-	"TEMP",
-	"TEMPORARY",
-	"TERMINATED",
-	"TEXT",
-	"THAN",
-	"THEN",
-	"THROUGHPUT",
-	"TIME",
-	"TIMESTAMP",
-	"TIMEZONE",
-	"TINYINT",
-	"TO",
-	"TOKEN",
-	"TOTAL",
-	"TOUCH",
-	"TRAILING",
-	"TRANSACTION",
-	"TRANSFORM",
-	"TRANSLATE",
-	"TRANSLATION",
-	"TREAT",
-	"TRIGGER",
-	"TRIM",
-	"TRUE",
-	"TRUNCATE",
-	"TTL",
-	"TUPLE",
-	"TYPE",
-	"UNDER",
-	"UNDO",
-	"UNION",
-	"UNIQUE",
-	"UNIT",
-	"UNKNOWN",
-	"UNLOGGED",
-	"UNNEST",
-	"UNPROCESSED",
-	"UNSIGNED",
-	"UNTIL",
-	"UPDATE",
-	"UPPER",
-	"URL",
-	"USAGE",
-	"USE",
-	"USER",
-	"USERS",
-	"USING",
-	"UUID",
-	"VACUUM",
-	"VALUE",
-	"VALUED",
-	"VALUES",
-	"VARCHAR",
-	"VARIABLE",
-	"VARIANCE",
-	"VARINT",
-	"VARYING",
-	"VIEW",
-	"VIEWS",
-	"VIRTUAL",
-	"VOID",
-	"WAIT",
-	"WHEN",
-	"WHENEVER",
-	"WHERE",
-	"WHILE",
-	"WINDOW",
-	"WITH",
-	"WITHIN",
-	"WITHOUT",
-	"WORK",
-	"WRAPPED",
-	"WRITE",
-	"YEAR",
-	"ZONE"
-];
 
 /***/ }),
 
@@ -1758,7 +923,7 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 87:
+/***/ 84:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1840,17 +1005,80 @@ exports.default = {
 
 /***/ }),
 
-/***/ 88:
+/***/ 85:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _aws = __webpack_require__(190);
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _dynamoConverters = __webpack_require__(92);
+
+var _dynamoConverters2 = _interopRequireDefault(_dynamoConverters);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var awsKey = 'n2ZKFrQL5Z5YNKb3tio4j4vtwPUVTrOi7hTveQnJ';
+var startDate = new Date(2017, 4, 12);
+var endDate = new Date(2017, 4, 9);
+
+function formatDate(date) {
+	return date.toISOString().slice(0, 10);
+}
+
+var url = 'https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange?before_date=' + formatDate(startDate) + '&after_date=' + formatDate(endDate);
+var request = new Request(url, {
+	headers: new Headers({
+		'x-api-key': awsKey
+	})
+});
+
+exports.default = {
+	update: function update() {
+		return fetch(request).then(function (response) {
+			return response.json();
+		}).then(function (data) {
+			var result = {
+				usd: [],
+				eur: []
+			};
+
+			data.Items.forEach(function (awsItem) {
+				var item = _dynamoConverters2.default.itemToData(awsItem);
+				var date = new Date(item.date);
+
+				result.usd.push({
+					date: date,
+					value: item.currencies.USDRUB.rate
+				});
+
+				result.eur.push({
+					date: date,
+					value: item.currencies.EURRUB.rate
+				});
+			});
+
+			return result;
+		});
+	}
+};
+
+/***/ }),
+
+/***/ 87:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _aws = __webpack_require__(85);
 
 var _aws2 = _interopRequireDefault(_aws);
 
-var _icon = __webpack_require__(87);
+var _icon = __webpack_require__(84);
 
 var _icon2 = _interopRequireDefault(_icon);
 
@@ -1898,6 +1126,778 @@ setTimeout(function interval() {
 		setTimeout(interval, errorIntervalTime);
 	});
 }, 2000);
+
+/***/ }),
+
+/***/ 92:
+/***/ (function(module, exports, __webpack_require__) {
+
+const reservedWords = __webpack_require__(93);
+const util = __webpack_require__(195);
+
+function convert (value) {
+    if (value === null) {
+        return {
+            NULL: true
+        };
+    }
+
+    if (typeof value === 'boolean') {
+        return {
+            BOOL: value
+        };
+    }
+
+    if (typeof value === 'number') {
+        return {
+            N: value.toString()
+        };
+    }
+
+    if (typeof value === 'string') {
+        return {
+            S: value
+        };
+    }
+
+    if (util.isArray(value)) {
+        return {
+            L: value.map(convert)
+        };
+    }
+
+    if (typeof value === 'object') {
+        const map = {};
+
+        for (const key in value) {
+            if (value[key] !== undefined) {
+                map[key] = convert(value[key]);
+            }
+        }
+
+        return {
+            M: map
+        };
+    }
+
+    throw new Error('Unsupported data type');
+}
+
+function isReservedWord (property) {
+    return reservedWords.some(function (reservedWord) {
+        return reservedWord === property.toUpperCase();
+    });
+}
+
+function formStatement (property, expressionAttributeNames) {
+    if (isReservedWord(property)) {
+        expressionAttributeNames['#' + property] = property;
+
+        return '#' + property + ' = :' + property;
+    }
+
+    return property + ' = :' + property;
+}
+
+module.exports = {
+
+    dataToItem: function (data) { // eslint-disable-line object-shorthand
+        const item = {};
+        const now = Date.now();
+
+        for (const property in data) {
+            if (data[property] !== undefined) {
+                item[property] = convert(data[property]);
+            }
+        }
+
+        item.created = {
+            N: now.toString()
+        };
+        item.modified = {
+            N: now.toString()
+        };
+
+        return item;
+    },
+
+    deltaToExpression: function (delta) { // eslint-disable-line object-shorthand
+        const expressionAttributeNames = {};
+        const expressionAttributeValues = {};
+        const removeStatements = [];
+        const setStatements = [];
+        const updateExpressions = [];
+
+        setStatements.push('modified = :modified');
+        expressionAttributeValues[':modified'] = {
+            N: Date.now().toString()
+        };
+
+        for (const property in delta) {
+            const value = delta[property];
+
+            if (value === undefined) {
+                if (isReservedWord(property)) {
+                    expressionAttributeNames['#' + property] = property;
+                    removeStatements.push('#' + property);
+                } else {
+                    removeStatements.push(property);
+                }
+            } else if (typeof value === 'boolean' ||
+                    typeof value === 'number' ||
+                    typeof value === 'string' ||
+                    typeof value === 'object') {
+                setStatements.push(formStatement(property, expressionAttributeNames));
+                expressionAttributeValues[':' + property] = convert(value);
+            }
+        }
+
+        if (removeStatements.length > 0) {
+            updateExpressions.push('REMOVE ' + removeStatements.join(', '));
+        }
+        if (setStatements.length > 0) {
+            updateExpressions.push('SET ' + setStatements.join(', '));
+        }
+
+        return {
+            expressionAttributeNames: (Object.keys(expressionAttributeNames).length > 0) ? expressionAttributeNames : undefined,
+            expressionAttributeValues: expressionAttributeValues, // eslint-disable-line object-shorthand
+            updateExpression: updateExpressions.join(' ')
+        };
+    },
+
+    itemToData: function (item) { // eslint-disable-line object-shorthand
+        const data = {};
+
+        function parse (value) {
+            if (value.BOOL !== undefined) {
+                return value.BOOL;
+            }
+
+            if (value.L !== undefined) {
+                return value.L.map(parse);
+            }
+
+            if (value.M !== undefined) {
+                const map = {};
+
+                for (const key in value.M) {
+                    map[key] = parse(value.M[key]);
+                }
+
+                return map;
+            }
+
+            if (value.N !== undefined) {
+                if (value.N.match(/\./)) {
+                    return parseFloat(value.N);
+                }
+
+                return parseInt(value.N, 10);
+            }
+
+            if (value.NULL === true) {
+                return null;
+            }
+
+            if (value.S !== undefined) {
+                return value.S;
+            }
+
+            throw new Error('Unsupported data type');
+        }
+
+        for (const property in item) {
+            if (item[property] !== undefined) {
+                data[property] = parse(item[property]);
+            }
+        }
+
+        return data;
+    }
+
+};
+
+
+/***/ }),
+
+/***/ 93:
+/***/ (function(module, exports) {
+
+module.exports = [
+	"ABORT",
+	"ABSOLUTE",
+	"ACTION",
+	"ADD",
+	"AFTER",
+	"AGENT",
+	"AGGREGATE",
+	"ALL",
+	"ALLOCATE",
+	"ALTER",
+	"ANALYZE",
+	"AND",
+	"ANY",
+	"ARCHIVE",
+	"ARE",
+	"ARRAY",
+	"AS",
+	"ASC",
+	"ASCII",
+	"ASENSITIVE",
+	"ASSERTION",
+	"ASYMMETRIC",
+	"AT",
+	"ATOMIC",
+	"ATTACH",
+	"ATTRIBUTE",
+	"AUTH",
+	"AUTHORIZATION",
+	"AUTHORIZE",
+	"AUTO",
+	"AVG",
+	"BACK",
+	"BACKUP",
+	"BASE",
+	"BATCH",
+	"BEFORE",
+	"BEGIN",
+	"BETWEEN",
+	"BIGINT",
+	"BINARY",
+	"BIT",
+	"BLOB",
+	"BLOCK",
+	"BOOLEAN",
+	"BOTH",
+	"BREADTH",
+	"BUCKET",
+	"BULK",
+	"BY",
+	"BYTE",
+	"CALL",
+	"CALLED",
+	"CALLING",
+	"CAPACITY",
+	"CASCADE",
+	"CASCADED",
+	"CASE",
+	"CAST",
+	"CATALOG",
+	"CHAR",
+	"CHARACTER",
+	"CHECK",
+	"CLASS",
+	"CLOB",
+	"CLOSE",
+	"CLUSTER",
+	"CLUSTERED",
+	"CLUSTERING",
+	"CLUSTERS",
+	"COALESCE",
+	"COLLATE",
+	"COLLATION",
+	"COLLECTION",
+	"COLUMN",
+	"COLUMNS",
+	"COMBINE",
+	"COMMENT",
+	"COMMIT",
+	"COMPACT",
+	"COMPILE",
+	"COMPRESS",
+	"CONDITION",
+	"CONFLICT",
+	"CONNECT",
+	"CONNECTION",
+	"CONSISTENCY",
+	"CONSISTENT",
+	"CONSTRAINT",
+	"CONSTRAINTS",
+	"CONSTRUCTOR",
+	"CONSUMED",
+	"CONTINUE",
+	"CONVERT",
+	"COPY",
+	"CORRESPONDING",
+	"COUNT",
+	"COUNTER",
+	"CREATE",
+	"CROSS",
+	"CUBE",
+	"CURRENT",
+	"CURSOR",
+	"CYCLE",
+	"DATA",
+	"DATABASE",
+	"DATE",
+	"DATETIME",
+	"DAY",
+	"DEALLOCATE",
+	"DEC",
+	"DECIMAL",
+	"DECLARE",
+	"DEFAULT",
+	"DEFERRABLE",
+	"DEFERRED",
+	"DEFINE",
+	"DEFINED",
+	"DEFINITION",
+	"DELETE",
+	"DELIMITED",
+	"DEPTH",
+	"DEREF",
+	"DESC",
+	"DESCRIBE",
+	"DESCRIPTOR",
+	"DETACH",
+	"DETERMINISTIC",
+	"DIAGNOSTICS",
+	"IRECTORIES",
+	"DISABLE",
+	"DISCONNECT",
+	"DISTINCT",
+	"DISTRIBUTE",
+	"DO",
+	"DOMAIN",
+	"DOUBLE",
+	"DROP",
+	"DUMP",
+	"DURATION",
+	"DYNAMIC",
+	"EACH",
+	"ELEMENT",
+	"ELSE",
+	"ELSEIF",
+	"EMPTY",
+	"ENABLE",
+	"END",
+	"EQUAL",
+	"EQUALS",
+	"ERROR",
+	"ESCAPE",
+	"ESCAPED",
+	"EVAL",
+	"EVALUATE",
+	"EXCEEDED",
+	"EXCEPT",
+	"EXCEPTION",
+	"EXCEPTIONS",
+	"EXCLUSIVE",
+	"EXEC",
+	"EXECUTE",
+	"EXISTS",
+	"EXIT",
+	"EXPLAIN",
+	"EXPLODE",
+	"EXPORT",
+	"EXPRESSION",
+	"EXTENDED",
+	"EXTERNAL",
+	"EXTRACT",
+	"FAIL",
+	"FALSE",
+	"FAMILY",
+	"FETCH",
+	"FIELDS",
+	"FILE",
+	"FILTER",
+	"FILTERING",
+	"FINAL",
+	"FINISH",
+	"FIRST",
+	"FIXED",
+	"FLATTERN",
+	"FLOAT",
+	"FOR",
+	"FORCE",
+	"FOREIGN",
+	"FORMAT",
+	"FORWARD",
+	"FOUND",
+	"FREE",
+	"FROM",
+	"FUNCTION",
+	"FUNCTIONS",
+	"GENERAL",
+	"GENERATE",
+	"GET",
+	"GLOB",
+	"GLOBAL",
+	"GO",
+	"GOTO",
+	"GRANT",
+	"GREATER",
+	"GROUP",
+	"GROUPING",
+	"HANDLER",
+	"HASH",
+	"HAVE",
+	"HAVING",
+	"HEAP",
+	"HIDDEN",
+	"HOLD",
+	"HOUR",
+	"IDENTIFIED",
+	"IDENTITY",
+	"IF",
+	"IGNORE",
+	"IMMEDIATE",
+	"IMPORT",
+	"IN",
+	"INCLUDING",
+	"INCLUSIVE",
+	"INCREMENT",
+	"INCREMENTAL",
+	"INDEX",
+	"INDEXED",
+	"INDEXES",
+	"INDICATOR",
+	"INFINITE",
+	"INITIALLY",
+	"INLINE",
+	"INNER",
+	"INNTER",
+	"INOUT",
+	"INPUT",
+	"INSENSITIVE",
+	"INSERT",
+	"INSTEAD",
+	"INT",
+	"INTEGER",
+	"INTERSECT",
+	"INTERVAL",
+	"INTO",
+	"INVALIDATE",
+	"IS",
+	"ISOLATION",
+	"ITEM",
+	"ITEMS",
+	"ITERATE",
+	"JOIN",
+	"KEY",
+	"KEYS",
+	"LAG",
+	"LANGUAGE",
+	"LARGE",
+	"LAST",
+	"LATERAL",
+	"LEAD",
+	"LEADING",
+	"LEAVE",
+	"LEFT",
+	"LENGTH",
+	"LESS",
+	"LEVEL",
+	"LIKE",
+	"LIMIT",
+	"LIMITED",
+	"LINES",
+	"LIST",
+	"LOAD",
+	"LOCAL",
+	"LOCALTIME",
+	"LOCALTIMESTAMP",
+	"LOCATION",
+	"LOCATOR",
+	"LOCK",
+	"LOCKS",
+	"LOG",
+	"LOGED",
+	"LONG",
+	"LOOP",
+	"LOWER",
+	"MAP",
+	"MATCH",
+	"MATERIALIZED",
+	"MAX",
+	"MAXLEN",
+	"MEMBER",
+	"MERGE",
+	"METHOD",
+	"METRICS",
+	"MIN",
+	"MINUS",
+	"MINUTE",
+	"MISSING",
+	"MOD",
+	"MODE",
+	"MODIFIES",
+	"MODIFY",
+	"MODULE",
+	"MONTH",
+	"MULTI",
+	"MULTISET",
+	"NAME",
+	"NAMES",
+	"NATIONAL",
+	"NATURAL",
+	"NCHAR",
+	"NCLOB",
+	"NEW",
+	"NEXT",
+	"NO",
+	"NONE",
+	"NOT",
+	"NULL",
+	"NULLIF",
+	"NUMBER",
+	"NUMERIC",
+	"OBJECT",
+	"OF",
+	"OFFLINE",
+	"OFFSET",
+	"OLD",
+	"ON",
+	"ONLINE",
+	"ONLY",
+	"OPAQUE",
+	"OPEN",
+	"OPERATOR",
+	"OPTION",
+	"OR",
+	"ORDER",
+	"ORDINALITY",
+	"OTHER",
+	"OTHERS",
+	"OUT",
+	"OUTER",
+	"OUTPUT",
+	"OVER",
+	"OVERLAPS",
+	"OVERRIDE",
+	"OWNER",
+	"PAD",
+	"PARALLEL",
+	"PARAMETER",
+	"PARAMETERS",
+	"PARTIAL",
+	"PARTITION",
+	"PARTITIONED",
+	"PARTITIONS",
+	"PATH",
+	"PERCENT",
+	"PERCENTILE",
+	"PERMISSION",
+	"PERMISSIONS",
+	"PIPE",
+	"PIPELINED",
+	"PLAN",
+	"POOL",
+	"POSITION",
+	"PRECISION",
+	"PREPARE",
+	"PRESERVE",
+	"PRIMARY",
+	"PRIOR",
+	"PRIVATE",
+	"PRIVILEGES",
+	"PROCEDURE",
+	"PROCESSED",
+	"PROJECT",
+	"PROJECTION",
+	"PROPERTY",
+	"PROVISIONING",
+	"PUBLIC",
+	"PUT",
+	"QUERY",
+	"QUIT",
+	"QUORUM",
+	"RAISE",
+	"RANDOM",
+	"RANGE",
+	"RANK",
+	"RAW",
+	"READ",
+	"READS",
+	"REAL",
+	"REBUILD",
+	"RECORD",
+	"RECURSIVE",
+	"REDUCE",
+	"REF",
+	"REFERENCE",
+	"REFERENCES",
+	"REFERENCING",
+	"REGEXP",
+	"REGION",
+	"REINDEX",
+	"RELATIVE",
+	"RELEASE",
+	"REMAINDER",
+	"RENAME",
+	"REPEAT",
+	"REPLACE",
+	"REQUEST",
+	"RESET",
+	"RESIGNAL",
+	"RESOURCE",
+	"RESPONSE",
+	"RESTORE",
+	"RESTRICT",
+	"RESULT",
+	"RETURN",
+	"RETURNING",
+	"RETURNS",
+	"REVERSE",
+	"REVOKE",
+	"RIGHT",
+	"ROLE",
+	"ROLES",
+	"ROLLBACK",
+	"ROLLUP",
+	"ROUTINE",
+	"ROW",
+	"ROWS",
+	"RULE",
+	"RULES",
+	"SAMPLE",
+	"SATISFIES",
+	"SAVE",
+	"SAVEPOINT",
+	"SCAN",
+	"SCHEMA",
+	"SCOPE",
+	"SCROLL",
+	"SEARCH",
+	"SECOND",
+	"SECTION",
+	"SEGMENT",
+	"SEGMENTS",
+	"SELECT",
+	"SELF",
+	"SEMI",
+	"SENSITIVE",
+	"SEPARATE",
+	"SEQUENCE",
+	"SERIALIZABLE",
+	"SESSION",
+	"SET",
+	"SETS",
+	"SHARD",
+	"SHARE",
+	"SHARED",
+	"SHORT",
+	"SHOW",
+	"SIGNAL",
+	"SIMILAR",
+	"SIZE",
+	"SKEWED",
+	"SMALLINT",
+	"SNAPSHOT",
+	"SOME",
+	"SOURCE",
+	"SPACE",
+	"SPACES",
+	"SPARSE",
+	"SPECIFIC",
+	"SPECIFICTYPE",
+	"SPLIT",
+	"SQL",
+	"SQLCODE",
+	"SQLERROR",
+	"SQLEXCEPTION",
+	"SQLSTATE",
+	"SQLWARNING",
+	"START",
+	"STATE",
+	"STATIC",
+	"STATUS",
+	"STORAGE",
+	"STORE",
+	"STORED",
+	"STREAM",
+	"STRING",
+	"STRUCT",
+	"STYLE",
+	"SUB",
+	"SUBMULTISET",
+	"SUBPARTITION",
+	"SUBSTRING",
+	"SUBTYPE",
+	"SUM",
+	"SUPER",
+	"SYMMETRIC",
+	"SYNONYM",
+	"SYSTEM",
+	"TABLE",
+	"TABLESAMPLE",
+	"TEMP",
+	"TEMPORARY",
+	"TERMINATED",
+	"TEXT",
+	"THAN",
+	"THEN",
+	"THROUGHPUT",
+	"TIME",
+	"TIMESTAMP",
+	"TIMEZONE",
+	"TINYINT",
+	"TO",
+	"TOKEN",
+	"TOTAL",
+	"TOUCH",
+	"TRAILING",
+	"TRANSACTION",
+	"TRANSFORM",
+	"TRANSLATE",
+	"TRANSLATION",
+	"TREAT",
+	"TRIGGER",
+	"TRIM",
+	"TRUE",
+	"TRUNCATE",
+	"TTL",
+	"TUPLE",
+	"TYPE",
+	"UNDER",
+	"UNDO",
+	"UNION",
+	"UNIQUE",
+	"UNIT",
+	"UNKNOWN",
+	"UNLOGGED",
+	"UNNEST",
+	"UNPROCESSED",
+	"UNSIGNED",
+	"UNTIL",
+	"UPDATE",
+	"UPPER",
+	"URL",
+	"USAGE",
+	"USE",
+	"USER",
+	"USERS",
+	"USING",
+	"UUID",
+	"VACUUM",
+	"VALUE",
+	"VALUED",
+	"VALUES",
+	"VARCHAR",
+	"VARIABLE",
+	"VARIANCE",
+	"VARINT",
+	"VARYING",
+	"VIEW",
+	"VIEWS",
+	"VIRTUAL",
+	"VOID",
+	"WAIT",
+	"WHEN",
+	"WHENEVER",
+	"WHERE",
+	"WHILE",
+	"WINDOW",
+	"WITH",
+	"WITHIN",
+	"WITHOUT",
+	"WORK",
+	"WRAPPED",
+	"WRITE",
+	"YEAR",
+	"ZONE"
+];
 
 /***/ })
 
