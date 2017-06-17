@@ -35,7 +35,7 @@ class Popup extends React.Component {
 		 });*/
 
 
-		providers.yandex.getDetailed()
+		providers.aws.update()
 			.then(data => {
 				this.setState({
 					usd: data.usd,

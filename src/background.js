@@ -1,9 +1,9 @@
-import providers from './providers/aws';
+import providers from './providers/index';
 import icon from './icon';
 
 // const startTimeout = .1 * 60 * 1000; //15000;
-const okIntervalTime = .2 * 60 * 1000;
-const errorIntervalTime = .4 * 60 * 1000;
+const okIntervalTime = 2 * 60 * 1000;
+const errorIntervalTime = 4 * 60 * 1000;
 
 function updateIcon(values) {
 	// console.log('values', values);
@@ -28,7 +28,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 setTimeout(function interval() {
-	providers.update()
+	providers.aws.update()
 		.then(data => {
 			data.usd.forEach(item => {
 				item.date = Number(item.date);
