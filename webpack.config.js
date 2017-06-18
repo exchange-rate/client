@@ -18,7 +18,7 @@ module.exports = {
             {
                 test: /\.jsx?$/,
 				exclude: /node_modules/,
-				use: [ {
+				use: [{
                 	loader: 'babel-loader',
 					options: {
 						presets: ['react', 'es2015', 'stage-0']
@@ -32,17 +32,7 @@ module.exports = {
 					fallback: 'style-loader',
 					use: ['css-loader', 'sass-loader']
 				})
-            },
-			{
-				test: /\.(png|jpg|gif|svg)$/,
-				use: [{
-					loader: 'url-loader',
-					options: {
-						limit: 8 * 1024
-					}
-				}],
-
-			}
+            }
 		]
 	},
 	plugins: [

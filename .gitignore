@@ -1,5 +1,8 @@
 node_modules/
 .idea/
 dist/popup.css
+dist/popup.css.map
 dist/background.js
+dist/background.js.map
 dist/popup.js
+dist/popup.js.map
