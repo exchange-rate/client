@@ -27,21 +27,22 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 	}
 });
 
-setTimeout(function interval() {
-	providers.aws.update()
-		.then(data => {
-			data.usd.forEach(item => {
-				item.date = Number(item.date);
-			});
-			data.eur.forEach(item => {
-				item.date = Number(item.date);
-			});
-			chrome.storage.local.set({ currencyList: data }, () => {
-				console.log('saved');
-			});
-			// setTimeout(interval, okIntervalTime);
-		})
-		.catch(() => {
-			// setTimeout(interval, errorIntervalTime);
-		});
-}, 2000);
+// setTimeout(function interval() {
+// 	providers.aws.update()
+// 		.then(data => {
+// 			data.usd.forEach(item => {
+// 				item.date = Number(item.date);
+// 			});
+// 			data.eur.forEach(item => {
+// 				item.date = Number(item.date);
+// 			});
+// 			chrome.storage.local.set({ currencyList: data }, () => {
+// 				console.log('saved');
+// 			});
+// 			setTimeout(interval, okIntervalTime);
+// 		})
+// 		.catch(() => {
+// 			setTimeout(interval, errorIntervalTime);
+// 		});
+// }, 2000);
+
