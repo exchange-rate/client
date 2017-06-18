@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Chart from './chart';
 import providers from './providers/index';
+import styles from './styles/main.sass'
 
 class Popup extends React.Component {
 	constructor(props) {
@@ -14,12 +15,17 @@ class Popup extends React.Component {
 			eur: [],
 			cursorPosition: 0
 		};
+		this._onToolbarClick = this._onToolbarClick(this);
 	}
 
 	_onCursorPositionChanged(value) {
 		/*this.setState({
 		 cursorPosition: value
 		 });*/
+	}
+
+	_onToolbarClick(e){
+		console.log(e.target);
 	}
 
 	componentDidMount() {
@@ -47,6 +53,11 @@ class Popup extends React.Component {
 	render() {
 		return (
 			<div>
+				<div className="toolbar">
+					<div data-range="day" onClick={this._onToolbarClick}>Day</div>
+					<div  data-range="month" onClick={this._onToolbarClick}>Month</div>
+					<div  data-range="year" onClick={this._onToolbarClick}>Year</div>
+				</div>
 				<Chart
 					title="USD"
 					values={ this.state.usd }
