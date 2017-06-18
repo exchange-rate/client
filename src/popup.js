@@ -15,7 +15,7 @@ class Popup extends React.Component {
 			eur: [],
 			cursorPosition: 0
 		};
-		this._onToolbarClick = this._onToolbarClick(this);
+		this._onToolbarClick = this._onToolbarClick.bind(this);
 	}
 
 	_onCursorPositionChanged(value) {
@@ -25,7 +25,13 @@ class Popup extends React.Component {
 	}
 
 	_onToolbarClick(e){
-		console.log(e.target);
+		providers.aws.update(e.target.dataset.range)
+			.then(data => {
+				this.setState({
+					usd: data.usd,
+					eur: data.eur
+				});
+			});
 	}
 
 	componentDidMount() {
@@ -41,7 +47,7 @@ class Popup extends React.Component {
 		 });*/
 
 
-		providers.aws.update()
+		providers.aws.update("day")
 			.then(data => {
 				this.setState({
 					usd: data.usd,
@@ -55,6 +61,7 @@ class Popup extends React.Component {
 			<div>
 				<div className="toolbar">
 					<div data-range="day" onClick={this._onToolbarClick}>Day</div>
+					<div data-range="week" onClick={this._onToolbarClick}>Week</div>
 					<div  data-range="month" onClick={this._onToolbarClick}>Month</div>
 					<div  data-range="year" onClick={this._onToolbarClick}>Year</div>
 				</div>
