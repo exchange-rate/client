@@ -4,6 +4,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const WebpackNotifierPlugin = require('webpack-notifier');
 
 module.exports = {
+	devtool: 'inline-source-map',
 	entry: {
 		popup: path.resolve(__dirname, 'src/popup.js'),
         background: path.resolve(__dirname, './src/background.js')
@@ -28,7 +29,14 @@ module.exports = {
 					fallback: 'style-loader',
 					use: ['css-loader', 'sass-loader']
 				})
-            }
+            },
+			{
+				test: /\.(png|jpg|gif|svg)$/,
+				loader: 'url-loader',
+				query: {
+					limit: 8192
+				}
+			}
 		]
 	},
 	plugins: [
