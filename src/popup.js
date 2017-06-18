@@ -59,10 +59,10 @@ class Popup extends React.Component {
 		return (
 			<div>
 				<div className="toolbar">
-					<div onClick={ this._onToolbarClick.bind('day') }>Day</div>
-					<div onClick={ this._onToolbarClick.bind('week') }>Week</div>
-					<div onClick={ this._onToolbarClick.bind('month') }>Month</div>
-					<div onClick={ this._onToolbarClick.bind('year') }>Year</div>
+					<button onClick={ this._onToolbarClick.bind('day') }>За день</button>
+					<button onClick={ this._onToolbarClick.bind('week') }>неделю</button>
+					<button onClick={ this._onToolbarClick.bind('month') }>месяц</button>
+					<button onClick={ this._onToolbarClick.bind('year') }>год</button>
 				</div>
 				<Chart
 					title="USD"

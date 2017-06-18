@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackNotifierPlugin = require('webpack-notifier');
 
 module.exports = {
@@ -23,8 +23,7 @@ module.exports = {
 					options: {
 						presets: ['react', 'es2015', 'stage-0']
 					}
-				}],
-
+				}]
             },
             {
 				test: /\.sass$/,
