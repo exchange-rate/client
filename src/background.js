@@ -2,8 +2,8 @@ import providers from './providers/index';
 import icon from './icon';
 
 // const startTimeout = .1 * 60 * 1000; //15000;
-const okIntervalTime = 5 * 60 * 1000;
-const errorIntervalTime = 10 * 60 * 1000;
+const okIntervalTime = 15 * 60 * 1000;
+const errorIntervalTime = 30 * 60 * 1000;
 
 function updateIcon(values) {
 	// console.log('values', values);
