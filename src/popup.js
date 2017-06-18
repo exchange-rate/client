@@ -24,14 +24,13 @@ class Popup extends React.Component {
 		 });*/
 	}
 
-	_onToolbarClick(e){
-		providers.aws.update(e.target.dataset.range)
-			.then(data => {
-				this.setState({
-					usd: data.usd,
-					eur: data.eur
-				});
+	_onToolbarClick(type){
+		providers.aws.update(type).then(data => {
+			this.setState({
+				usd: data.usd,
+				eur: data.eur
 			});
+		});
 	}
 
 	componentDidMount() {
@@ -60,10 +59,10 @@ class Popup extends React.Component {
 		return (
 			<div>
 				<div className="toolbar">
-					<div data-range="day" onClick={this._onToolbarClick}>Day</div>
-					<div data-range="week" onClick={this._onToolbarClick}>Week</div>
-					<div  data-range="month" onClick={this._onToolbarClick}>Month</div>
-					<div  data-range="year" onClick={this._onToolbarClick}>Year</div>
+					<div onClick={ this._onToolbarClick.bind('day') }>Day</div>
+					<div onClick={ this._onToolbarClick.bind('week') }>Week</div>
+					<div onClick={ this._onToolbarClick.bind('month') }>Month</div>
+					<div onClick={ this._onToolbarClick.bind('year') }>Year</div>
 				</div>
 				<Chart
 					title="USD"
