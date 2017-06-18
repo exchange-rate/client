@@ -31,8 +31,6 @@ canvas.height = canvasHeight * ratio;
 let ctx = canvas.getContext('2d');
 ctx.scale(ratio, ratio);
 
-// let data = null;
-// let values = null;
 let lastValues = null;
 
 function update(values) {
