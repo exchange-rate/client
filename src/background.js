@@ -39,9 +39,9 @@ setTimeout(function interval() {
 			chrome.storage.local.set({ currencyList: data }, () => {
 				console.log('saved');
 			});
-			setTimeout(interval, okIntervalTime);
+			// setTimeout(interval, okIntervalTime);
 		})
 		.catch(() => {
-			setTimeout(interval, errorIntervalTime);
+			// setTimeout(interval, errorIntervalTime);
 		});
 }, 2000);
