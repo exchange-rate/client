@@ -1,9 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Rouble course",
-  "description": "USD and EUR indicators",
-  "author": "Trushin Vlad",
-  "version": "1.200",
+  "name": "Exchange rate",
+  "description": "Exchange rate indicators",
+  "version": "0.1",
   "background": {
     "scripts": [
       "background.js"
@@ -17,14 +16,8 @@
     "default_popup": "popup.html"
   },
   "permissions": [
-    "http://*.rbc.ru/",
-    "https://*.rbc.ru/",
-    "http://moex.com/",
-    "https://www.theice.com/",
-    "https://*.yandex.ru/",
     "https://*.amazonaws.com/",
     "alarms",
     "storage"
-  ],
-  "content_security_policy": "script-src 'sha256-gCYmZzrAHEEhJC6Hlu2H3xcE+Nlv8O+aiHtmy6a04Qk='; object-src 'self'"
+  ]
 }
