@@ -4,8 +4,11 @@ body
 	//font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif
 	font-family: Verdana
 	margin: 0
-	padding: 10px 0
+	//padding: 10px 0
 	// border: 1px solid red;
+
+#app
+	padding: 10px 20px
 
 *::selection
 	background-color: transparent
@@ -77,7 +80,35 @@ body
 		margin-right: 10px
 
 
-button
+.popup
+	display: grid
+	grid-gap: 15px
+
+	.popup__toolbar
+		display: grid
+		grid-auto-flow: column
+		align-items: center
+		justify-content: space-between
+		margin-left: -8px
+
+	.popup__range-group
+
+	.popup__body
+		display: grid
+		grid-gap: 15px
+
+.settings
+	background-color: transparent
+	font: 12px Verdana
+	color: #ccc
+	border: none
+	margin: 0
+	padding: 0
+	text-decoration-line: underline
+	text-decoration-color: #eee
+	cursor: pointer
+
+.popup__range-group button
 	border: none
 	background-color: transparent
 	font: 12px Verdana
@@ -85,6 +116,10 @@ button
 	padding: 3px 8px 4px
 	outline: none
 	border-radius: 5px
+	white-space: nowrap
 
-	&:hover
+	&:not(._selected)
+		cursor: pointer
+
+	&._selected
 		background-color: #ffe800

@@ -15,7 +15,10 @@
     },
     "default_popup": "popup.html"
   },
+  "options_page": "options.html",
   "permissions": [
+    "http://*.rbc.ru/",
+    "https://*.rbc.ru/",
     "https://*.amazonaws.com/",
     "alarms",
     "storage"
