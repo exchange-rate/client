@@ -7,27 +7,31 @@ function formatDate(date) {
 }
 
 export default {
-	update(range) {
+	update() {
 		const startDate = new Date();
 		const endDate = new Date();
-
+		let table = "";
 		switch (range){
 			case 'year':
 				startDate.setDate(startDate.getDate() - 365);
+				table = "today_exchange";
 				break;
 			case 'month':
 				startDate.setDate(startDate.getDate() - 30);
+				table = "today_exchange";
 				break;
 			case 'week':
 				startDate.setDate(startDate.getDate() - 6);
+				table = "today_exchange";
 				break;
 			case 'day':
 			default:
+				table = "currency";
 				startDate.setHours(0, 0, 0, 0);
 		}
 
 		const url = `https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange?before_date=${formatDate(endDate)}&after_date=${formatDate(startDate)}
-		&range=${range}`;
+		&table=${table}`;
 
 		const request = new Request(url, {
 			headers: new Headers({
