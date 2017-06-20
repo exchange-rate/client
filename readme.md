@@ -1,6 +1,11 @@
 # Exchange rate
 
-Run
+Watch
 ```
 npm run watch
+```
+
+Production build
+```
+npm run build
 ```
