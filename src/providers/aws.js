@@ -31,7 +31,7 @@ export default {
 		}
 
 		const url = `https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange?before_date=${formatDate(endDate)}&after_date=${formatDate(startDate)}
-		&table=${table}`;
+		&table_name=${table}&currency{currency}`;
 
 		const request = new Request(url, {
 			headers: new Headers({
