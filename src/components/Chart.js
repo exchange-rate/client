@@ -6,8 +6,10 @@ import './Chart.sass';
 const chartWidth = 360;
 const chartHeight = 120;
 
+const minYLegendStep = 10;
+
 const initialState = {
-	showCurrencyTitleValue: true,
+	hover: false,
 	cursor: 0
 };
 
@@ -23,13 +25,41 @@ export default class extends React.Component {
 
 	_onMove(e) {
 		this.setState({
-			showCurrencyTitleValue: false,
+			hover: true,
 			cursor: e.pageX - this.svgEl.getBoundingClientRect().left
 		});
 	}
 
 	_onOut() {
 		this.setState(initialState)
+	}
+
+	renderYLegend(minValue, maxValue) {
+		const stepsCount = 5;
+
+		return fromRange(0, stepsCount, i => {
+			const value = (maxValue - i * (maxValue - minValue) / stepsCount).toFixed(2);
+			const y = i * chartHeight / (stepsCount - 1);
+			let alignment = 'central';
+			if (i === 0) {
+				alignment = 'text-before-edge';
+			}
+			if (i === stepsCount - 1) {
+				alignment = 'text-after-edge';
+			}
+
+			return (
+				<g key={ i }>
+					<line x1="0" y1={ y } x2={ chartWidth } y2={ y } className="chart__grid"/>
+					<text x="0" y={ y } textAnchor="start" dominantBaseline={ alignment } className="chart__label">
+						{ value }
+					</text>
+					<text x={ chartWidth } y={ y } textAnchor="end" dominantBaseline={ alignment } className="chart__label">
+						{ value }
+					</text>
+				</g>
+			);
+		});
 	}
 
 	render() {
@@ -39,59 +69,51 @@ export default class extends React.Component {
 			return null;
 		}
 
-		const lastValue = last(values);
+		// const yGridStep = .1;
 		const xStep = chartWidth / (values.length - 1);
-		const valueNumbers = this.props.values.map(value => value.value);
-		const minValue = Math.min(...valueNumbers);
-		const maxValue = Math.max(...valueNumbers);
-		const yGridStep = .1;
-		const yGridValues = fromRange(Math.ceil(minValue / yGridStep) * yGridStep, maxValue, i => i + yGridStep);
+		const yValues = this.props.values.map(value => value.value);
+		const minYValue = Math.min(...yValues);
+		const maxYValue = Math.max(...yValues);
+		// const yGridValues = fromRange(Math.ceil(minYValue / yGridStep) * yGridStep, maxYValue, i => i + yGridStep);
 
 		const points = values.map((value, i) => ({
 			x: i * xStep,
-			y: minValue === 0 && maxValue === 0 ? 0 : chartHeight - (value.value - minValue) / (maxValue - minValue) * chartHeight
+			y: minYValue === 0 && maxYValue === 0 ? 0 : chartHeight - (value.value - minYValue) / (maxYValue - minYValue) * chartHeight
 		}));
 
 		return (
 			<div className="chart">
 				<div className="chart__header">
 					<div className="chart__title">{ title }</div>
-					<div className="chart__currency-value" style={{ opacity: this.state.showCurrencyTitleValue ? 1 : 0 }}>{ lastValue.value }</div>
+					<div className="chart__currency-value" style={{ opacity: this.state.hover ? 0 : 1 }}>
+						{ last(values).value }
+					</div>
 				</div>
-
 				<svg
+					ref={ el => this.svgEl = el }
 					width={ chartWidth }
 					height={ chartHeight }
 					onMouseMove={ this._onMove }
 					onMouseOut={ this._onOut }
 					className="chart__body"
-					ref={ el => this.svgEl = el }
 				>
-					<line
-						x1="0"
-						y1="0"
-						x2="0"
-						y2={ chartHeight }
-						className="chart__cursor-line"
-						style={{ transform: `translateX(${this.state.cursor}px)` }}
-					/>
+					{ this.state.hover && (
+						<line
+							x1="0"
+							y1="0"
+							x2="0"
+							y2={ chartHeight }
+							className="chart__cursor-line"
+							style={{ transform: `translateX(${this.state.cursor}px)` }}
+						/>
+					)}
 
 					<polyline points={ toSvgPoints(points) } className="chart__line" />
 
-					{ points.map(point => (
-						<g key={ point.x + ':' + point.y }>
-							<text x="0" y={ point.y } textAnchor="start" className="chart__labels">
-								{ point.y.toFixed(2) }
-							</text>
-							<text x={ chartWidth } y={ point.y } textAnchor="end" className="chart__labels">
-								{ point.y.toFixed(2) }
-							</text>
-						</g>
-					)) }
+					{ this.renderYLegend(minYValue, maxYValue) }
 				</svg>
-
 			</div>
-		)
+		);
 	}
 
 }

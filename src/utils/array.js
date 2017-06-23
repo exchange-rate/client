@@ -4,6 +4,6 @@ export function last(arr) {
 
 export function fromRange(start, end, cb) {
 	return Array.from({ length: Math.abs(end - start) }, (_, i) => (
-		cb(start + start < end ? i : -i))
+		cb(start < end ? start + i : start - i))
 	);
 }

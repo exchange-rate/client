@@ -1,6 +1,6 @@
 .chart
 	display: grid
-	grid-gap: 5px
+	grid-gap: 10px
 
 	.chart__header
 		display: grid
@@ -16,9 +16,14 @@
 		transition: opacity .4s
 
 	.chart__body
+		&:hover
+			.chart__line
+				stroke: #cfcfcf
+			.chart__label
+				fill: rgba(0, 0, 0, .5)
 
-	.chart__labels
-		dominant-baseline: central
+	.chart__label
+		//dominant-baseline: central
 		fill: rgba(0, 0, 0, .75)
 		font-size: 10px
 
@@ -28,7 +33,14 @@
 		stroke-width: 2px
 		stroke-linejoin: round
 		stroke-linecap: round
+		transition: stroke .4s
 
 	.chart__cursor-line
 		stroke: #ff2400
 		stroke-width: 1px
+		pointer-events: none
+
+	.chart__grid
+		stroke-width: 1
+		stroke: rgba(0, 0, 0, .3)
+		stroke-dasharray: 1, 3

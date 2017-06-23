@@ -2,6 +2,10 @@ import converters from 'dynamo-converters';
 
 const awsKey = 'n2ZKFrQL5Z5YNKb3tio4j4vtwPUVTrOi7hTveQnJ';
 
+function toUrlParams(params) {
+	return '?' + Object.keys(params).map(key => key + '=' + params[key]).join('&');
+}
+
 function formatDate(date) {
 	return date.toISOString();
 }
@@ -10,29 +14,32 @@ export default {
 	update() {
 		const startDate = new Date();
 		const endDate = new Date();
-		let table = "";
+		let table = 'today_exchange';
+
 		switch (range){
 			case 'year':
 				startDate.setDate(startDate.getDate() - 365);
-				table = "today_exchange";
 				break;
 			case 'month':
 				startDate.setDate(startDate.getDate() - 30);
-				table = "today_exchange";
 				break;
 			case 'week':
 				startDate.setDate(startDate.getDate() - 6);
-				table = "today_exchange";
 				break;
 			case 'day':
 			default:
-				table = "currency";
+				table = 'currency';
 				startDate.setHours(0, 0, 0, 0);
 		}
 
-		const url = `https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange?before_date=${formatDate(endDate)}&after_date=${formatDate(startDate)}
-		&table_name=${table}&currency{currency}`;
+		const params = toUrlParams({
+			before_date: formatDate(endDate),
+			after_date: formatDate(startDate),
+			table_name: table,
+			currency: 'EURUAH'
+		});
 
+		const url = 'https://mc010i3rae.execute-api.eu-central-1.amazonaws.com/prod/exchange' + params;
 		const request = new Request(url, {
 			headers: new Headers({
 				'x-api-key': awsKey
