@@ -3,8 +3,6 @@ import Chart from './Chart';
 import providers from '../providers/index';
 import './Popup.sass';
 
-// function
-
 export default class extends React.Component {
 	constructor(props) {
 		super(props);
@@ -56,11 +54,6 @@ export default class extends React.Component {
 	render() {
 		return (
 			<div className="popup">
-				<ButtonGroup>
-					<Link>A</Link>
-					<Link>B</Link>
-					<Link>C</Link>
-				</ButtonGroup>
 				<div className="popup__toolbar">
 					<div className="popup__range-group">
 						<button className="_selected" onClick={ e => this._onRangeChange('day') }>За день</button>
