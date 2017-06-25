@@ -3,24 +3,19 @@ import Chart from './Chart';
 import providers from '../providers/index';
 import './Popup.sass';
 
+// function
+
 export default class extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this._onCursorPositionChanged = this._onCursorPositionChanged.bind(this);
+		this._onRangeChange = this._onRangeChange.bind(this);
 
 		this.state = {
 			usd: [],
 			eur: [],
-			cursorPosition: 0
+			rangeType: null
 		};
-		this._onRangeChange = this._onRangeChange.bind(this);
-	}
-
-	_onCursorPositionChanged(value) {
-		/*this.setState({
-		 cursorPosition: value
-		 });*/
 	}
 
 	_openSettings() {
@@ -28,12 +23,11 @@ export default class extends React.Component {
 	}
 
 	_onRangeChange(type){
-		console.log(1, type);
-
 		providers.rbc.getDetailed(type).then(data => {
 			this.setState({
 				usd: data.usd,
-				eur: data.eur
+				eur: data.eur,
+				rangeType: type
 			});
 		});
 	}
@@ -50,10 +44,11 @@ export default class extends React.Component {
 		 }
 		 });*/
 
-		providers.rbc.getDetailed("day").then(data => {
+		providers.rbc.getDetailed('day').then(data => {
 			this.setState({
 				usd: data.usd,
-				eur: data.eur
+				eur: data.eur,
+				rangeType: 'day'
 			});
 		});
 	}
@@ -61,6 +56,11 @@ export default class extends React.Component {
 	render() {
 		return (
 			<div className="popup">
+				<ButtonGroup>
+					<Link>A</Link>
+					<Link>B</Link>
+					<Link>C</Link>
+				</ButtonGroup>
 				<div className="popup__toolbar">
 					<div className="popup__range-group">
 						<button className="_selected" onClick={ e => this._onRangeChange('day') }>За день</button>

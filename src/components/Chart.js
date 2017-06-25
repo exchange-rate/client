@@ -1,37 +1,59 @@
 import { last, fromRange } from '../utils/array';
+import { pad } from '../utils/number';
 import { convertToSvgPoints as toSvgPoints } from '../utils/svg';
 import React from 'react';
 import './Chart.sass';
 
 const chartWidth = 360;
 const chartHeight = 120;
-
 const minYLegendStep = 10;
 
-const initialState = {
-	hover: false,
-	cursor: 0
-};
+function formatDate(date) {
+	const day = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+	const hours = date.getHours();
+	const minutes = pad(date.getMinutes(), 2);
+
+	return `${day}, ${hours}:${minutes}`;
+}
 
 export default class extends React.Component {
 	constructor(props) {
 		super(props);
 
+		this._onOver = this._onOver.bind(this);
 		this._onMove = this._onMove.bind(this);
 		this._onOut = this._onOut.bind(this);
 
-		this.state = initialState;
+		this.state = {
+			hover: false,
+			cursor: 0
+		};
+	}
+
+	_onOver() {
+		this.setState({
+			hover: true
+		})
 	}
 
 	_onMove(e) {
-		this.setState({
-			hover: true,
-			cursor: e.pageX - this.svgEl.getBoundingClientRect().left
-		});
+		const xStep = chartWidth / (this.props.values.length - 1);
+		const cursor = Math.round((e.pageX - this.svgEl.getBoundingClientRect().left) / xStep);
+
+		if (this.state.cursor !== cursor) {
+			console.log(cursor);
+
+			this.setState({
+				cursor
+			});
+		}
 	}
 
 	_onOut() {
-		this.setState(initialState)
+		this.setState({
+			hover: false,
+			cursor: 0
+		})
 	}
 
 	renderYLegend(minValue, maxValue) {
@@ -60,6 +82,40 @@ export default class extends React.Component {
 				</g>
 			);
 		});
+	}
+
+	renderCursor(points) {
+		if (!this.state.hover) {
+			return null;
+		}
+
+		const { x, y } = points[this.state.cursor];
+
+		return (
+			<g>
+				<line
+					x1="0"
+					y1="0"
+					x2="0"
+					y2={ chartHeight }
+					className="chart__cursor-line"
+					style={{ transform: `translateX(${x.toFixed(0)}px)` }}
+				/>
+				<circle
+					cx={ x }
+					cy={ y }
+					className="chart__cursor-point"
+					r="4"
+				/>
+				<foreignObject y={ y } style={{ '--x': x + 'px' }} dominantBaseline="central" className="chart__bubble-cover">
+					<div className="chart__bubble" xmlns="http://www.w3.org/1999/xhtml">
+						{ this.props.values[this.state.cursor].value }
+						<br/>
+						<small>{ formatDate(this.props.values[this.state.cursor].date) }</small>
+					</div>
+				</foreignObject>
+			</g>
+		);
 	}
 
 	render() {
@@ -93,24 +149,14 @@ export default class extends React.Component {
 					ref={ el => this.svgEl = el }
 					width={ chartWidth }
 					height={ chartHeight }
+					onMouseOver={ this._onOver }
 					onMouseMove={ this._onMove }
 					onMouseOut={ this._onOut }
 					className="chart__body"
 				>
-					{ this.state.hover && (
-						<line
-							x1="0"
-							y1="0"
-							x2="0"
-							y2={ chartHeight }
-							className="chart__cursor-line"
-							style={{ transform: `translateX(${this.state.cursor}px)` }}
-						/>
-					)}
-
 					<polyline points={ toSvgPoints(points) } className="chart__line" />
-
 					{ this.renderYLegend(minYValue, maxYValue) }
+					{ this.renderCursor(points) }
 				</svg>
 			</div>
 		);
