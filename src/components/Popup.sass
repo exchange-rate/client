@@ -1,0 +1,32 @@
+.popup
+	display: grid
+	grid-gap: 20px
+
+	.popup__toolbar
+		display: grid
+		grid-auto-flow: column
+		align-items: center
+		justify-content: space-between
+		margin-left: -8px
+
+	.popup__range-group
+
+	.popup__body
+		display: grid
+		grid-gap: 30px
+
+	.popup__range-group button
+		border: none
+		background-color: transparent
+		font: 12px Verdana
+		margin: 0
+		padding: 3px 8px 4px
+		outline: none
+		border-radius: 5px
+		white-space: nowrap
+
+		&:not(._selected)
+			cursor: pointer
+
+		&._selected
+			background-color: #ffe800

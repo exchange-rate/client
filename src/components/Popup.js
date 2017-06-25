@@ -3,6 +3,11 @@ import Chart from './Chart';
 import providers from '../providers/index';
 import './Popup.sass';
 
+const exchangePairs = {
+	'USD': ['RUR', 'UAH'],
+	'EUR': ['RUR', 'UAH']
+};
+
 export default class extends React.Component {
 	constructor(props) {
 		super(props);

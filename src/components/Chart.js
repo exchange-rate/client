@@ -41,8 +41,6 @@ export default class extends React.Component {
 		const cursor = Math.round((e.pageX - this.svgEl.getBoundingClientRect().left) / xStep);
 
 		if (this.state.cursor !== cursor) {
-			console.log(cursor);
-
 			this.setState({
 				cursor
 			});
@@ -56,18 +54,37 @@ export default class extends React.Component {
 		})
 	}
 
+	renderCurrencyComboBoxes() {
+		return (
+			<div className="chart__title">
+				<select className="chart__combo-box">
+					<option value='USD'>USD</option>
+					<option value='EUR'>EUR</option>
+				</select>
+				<span className="chart__currency-splitter">/</span>
+				<select className="chart__combo-box">
+					<option value='RUR'>RUR</option>
+					<option value='UAH'>UAH</option>
+				</select>
+			</div>
+		)
+	}
+
 	renderYLegend(minValue, maxValue) {
 		const stepsCount = 5;
 
 		return fromRange(0, stepsCount, i => {
 			const value = (maxValue - i * (maxValue - minValue) / stepsCount).toFixed(2);
-			const y = i * chartHeight / (stepsCount - 1);
+			let y = i * chartHeight / (stepsCount - 1);
 			let alignment = 'central';
 			if (i === 0) {
+				y += .5;
 				alignment = 'text-before-edge';
-			}
-			if (i === stepsCount - 1) {
+			} else if (i === stepsCount - 1) {
+				y -= .5;
 				alignment = 'text-after-edge';
+			} else {
+				y -= .5;
 			}
 
 			return (
@@ -140,7 +157,7 @@ export default class extends React.Component {
 		return (
 			<div className="chart">
 				<div className="chart__header">
-					<div className="chart__title">{ title }</div>
+					{ this.renderCurrencyComboBoxes() }
 					<div className="chart__currency-value" style={{ opacity: this.state.hover ? 0 : 1 }}>
 						{ last(values).value }
 					</div>

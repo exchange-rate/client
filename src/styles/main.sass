@@ -8,94 +8,10 @@ body
 	// border: 1px solid red;
 
 #app
-	padding: 20px 20px
+	padding: 20px
 
 *::selection
 	background-color: transparent
-
-.checkbox-group
-	display: flex
-	flex-direction: column
-
-.labeled-checkbox
-	display: flex
-	align-items: center
-
-.checkbox-group .labeled-checkbox:not(:last-child)
-	margin-bottom: 10px
-
-.labeled-checkbox .checkbox
-	display: flex
-	margin-right: 5px
-
-.labeled-checkbox input
-	margin: 0
-	padding: 0
-
-.labeled-checkbox span
-	font-size: 14px
-	white-space: nowrap
-	user-select: none
-
-.chart-block
-	// padding: 15px 20px;
-
-	.chart-block__title
-		font-size: 14px
-		font-weight: normal
-		transition: 20ms transform
-		//margin: 0;
-		//margin-bottom: 10px;
-
-.chart-blocks
-	.chart-block:not(:last-child)
-		border-bottom: 1px solid #efefef
-
-.chart line
-	// mix-blend-mode: multiply
-	// transition: 20ms transform
-
-.balloon
-	display: flex
-	width: 51px
-	height: 35px
-	align-items: center
-	justify-content: center
-	font: 13px Verdana
-	padding: 1px 1px 10px 1px
-	box-sizing: border-box
-
-	span
-		display: inline-block
-		vertical-align: bottom
-
-.toolbar
-	display: flex
-	justify-content: flex-start
-
-	div
-		border: 1px solid black
-		cursor: pointer
-		padding: 6px
-		margin-right: 10px
-
-
-.popup
-	display: grid
-	grid-gap: 20px
-
-	.popup__toolbar
-		display: grid
-		grid-auto-flow: column
-		align-items: center
-		justify-content: space-between
-		margin-left: -8px
-
-	.popup__range-group
-
-	.popup__body
-		display: grid
-		grid-gap: 30px
 
 .settings
 	background-color: transparent
@@ -107,19 +23,3 @@ body
 	text-decoration-line: underline
 	text-decoration-color: #eee
 	cursor: pointer
-
-.popup__range-group button
-	border: none
-	background-color: transparent
-	font: 12px Verdana
-	margin: 0
-	padding: 3px 8px 4px
-	outline: none
-	border-radius: 5px
-	white-space: nowrap
-
-	&:not(._selected)
-		cursor: pointer
-
-	&._selected
-		background-color: #ffe800
