@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button, ButtonGroup } from './ButtonGroup';
 import Chart from './Chart';
 import providers from '../providers/index';
 import './Popup.sass';
@@ -61,10 +62,12 @@ export default class extends React.Component {
 			<div className="popup">
 				<div className="popup__toolbar">
 					<div className="popup__range-group">
-						<button className="_selected" onClick={ e => this._onRangeChange('day') }>За день</button>
-						<button onClick={ e => this._onRangeChange('week') }>неделю</button>
-						<button onClick={ e => this._onRangeChange('month') }>месяц</button>
-						<button onClick={ e => this._onRangeChange('year') }>год</button>
+						<ButtonGroup selected={ this.state.rangeType } onSelect={ this._onRangeChange }>
+							<Button value="day">За день</Button>
+							<Button value="week">неделю</Button>
+							<Button value="month">месяц</Button>
+							<Button value="year">год</Button>
+						</ButtonGroup>
 					</div>
 					<button onClick={ e => this._openSettings() } className="settings">Настройки</button>
 				</div>
