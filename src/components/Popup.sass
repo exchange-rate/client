@@ -1,5 +1,11 @@
 @import "../styles/variables"
 
+@keyframes lift-up
+	from
+		transform: translateY(40px)
+	to
+		transform: translateY(0)
+
 .popup
 	display: grid
 	//grid-gap: 10px
@@ -9,14 +15,21 @@
 		grid-auto-flow: column
 		align-items: center
 		justify-content: space-between
-		padding: 10px 15px
+		padding: 10px
+		grid-gap: 10px
 		background-color: #fff
-		margin-left: -8px
+		//margin-left: -8px
 		//box-shadow: 0 0 5px $shadow-color
-
-	.popup__range-group
 
 	.popup__body
 		display: grid
 		grid-gap: 10px
 		padding: 10px
+
+		//& > *
+		//	animation: lift-up .6s
+		//	animation-fill-mode: backwards
+		//	animation-timing-function: ease-out
+        //
+		//	&:nth-child(2)
+		//		animation-delay: .1s

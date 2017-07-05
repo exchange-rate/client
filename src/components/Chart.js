@@ -6,7 +6,11 @@ import './Chart.sass';
 
 const chartWidth = 360;
 const chartHeight = 120;
-const minYLegendStep = 10;
+const currencyTextSize = 10;
+
+const lineWidth = 2;
+const svgWidth = chartWidth + lineWidth;
+const svgHeight = chartHeight + currencyTextSize;
 
 function formatDate(date) {
 	const day = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
@@ -76,24 +80,14 @@ export default class extends React.Component {
 		return fromRange(0, stepsCount, i => {
 			const value = (maxValue - i * (maxValue - minValue) / stepsCount).toFixed(2);
 			let y = i * chartHeight / (stepsCount - 1);
-			let alignment = 'central';
-			if (i === 0) {
-				y += .5;
-				alignment = 'text-before-edge';
-			} else if (i === stepsCount - 1) {
-				y -= .5;
-				alignment = 'text-after-edge';
-			} else {
-				y -= .5;
-			}
 
 			return (
 				<g key={ i }>
 					<line x1="0" y1={ y } x2={ chartWidth } y2={ y } className="chart__grid"/>
-					<text x="0" y={ y } textAnchor="start" dominantBaseline={ alignment } className="chart__label">
+					<text x="0" y={ y } textAnchor="start" fontSize={ currencyTextSize } className="chart__label">
 						{ value }
 					</text>
-					<text x={ chartWidth } y={ y } textAnchor="end" dominantBaseline={ alignment } className="chart__label">
+					<text x={ chartWidth } y={ y } textAnchor="end" fontSize={ currencyTextSize } className="chart__label">
 						{ value }
 					</text>
 				</g>
@@ -136,19 +130,16 @@ export default class extends React.Component {
 	}
 
 	render() {
-		const { title, values } = this.props;
+		const { values } = this.props;
 
 		if (values.length === 0) {
 			return null;
 		}
 
-		// const yGridStep = .1;
 		const xStep = chartWidth / (values.length - 1);
 		const yValues = this.props.values.map(value => value.value);
 		const minYValue = Math.min(...yValues);
 		const maxYValue = Math.max(...yValues);
-		// const yGridValues = fromRange(Math.ceil(minYValue / yGridStep) * yGridStep, maxYValue, i => i + yGridStep);
-
 		const points = values.map((value, i) => ({
 			x: i * xStep,
 			y: minYValue === 0 && maxYValue === 0 ? 0 : chartHeight - (value.value - minYValue) / (maxYValue - minYValue) * chartHeight
@@ -162,19 +153,23 @@ export default class extends React.Component {
 						{ last(values).value }
 					</div>
 				</div>
-				<svg
-					ref={ el => this.svgEl = el }
-					width={ chartWidth }
-					height={ chartHeight }
-					onMouseOver={ this._onOver }
-					onMouseMove={ this._onMove }
-					onMouseOut={ this._onOut }
-					className="chart__body"
-				>
-					<polyline points={ toSvgPoints(points) } className="chart__line" />
-					{ this.renderYLegend(minYValue, maxYValue) }
-					{ this.renderCursor(points) }
-				</svg>
+				<div className="chart__body">
+					<svg
+						ref={ el => this.svgEl = el }
+						width={ svgWidth }
+						height={ svgHeight }
+						onMouseOver={ this._onOver }
+						onMouseMove={ this._onMove }
+						onMouseOut={ this._onOut }
+						className="chart__body-svg"
+					>
+						<g style={{ transform: `translate(${lineWidth / 2}px, ${currencyTextSize / 2}px)` }}>
+							<polyline points={ toSvgPoints(points) } className="chart__line" />
+							{ this.renderYLegend(minYValue, maxYValue) }
+							{ this.renderCursor(points) }
+						</g>
+					</svg>
+				</div>
 			</div>
 		);
 	}

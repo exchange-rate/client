@@ -1,11 +1,13 @@
 @import "../styles/variables"
 
+$timer: .3s
+
 .chart
 	display: grid
 	grid-gap: 15px
 	background-color: #fff
 	padding: 10px 15px
-	border-radius: 8px
+	border-radius: 5px
 	//box-shadow: 0 0 5px $shadow-color
 
 	.chart__header
@@ -39,36 +41,37 @@
 	.chart__currency-value
 		font-size: .9em
 		color: rgba(0, 0, 0, .4)
-		transition: opacity .2s
+		transition: opacity $timer
 
-	.chart__body
+	.chart__body-svg
 		&:hover
 			.chart__line
 				stroke: #cfcfcf
 			.chart__label
-				fill: rgba(0, 0, 0, .5)
+				fill: rgba(0, 0, 0, .3)
 		*
 			pointer-events: none
 
 	.chart__label
-		//dominant-baseline: central
+		dominant-baseline: central
 		fill: rgba(0, 0, 0, .75)
-		font-size: 10px
+		transition: fill $timer
+		//font-size: 10px
 
 	.chart__line
 		fill: none
-		stroke: #00bfff
+		stroke: $active-color
 		stroke-width: 2px
 		stroke-linejoin: round
 		stroke-linecap: round
-		transition: stroke .2s
+		transition: stroke $timer
 
 	.chart__cursor-line
-		stroke: #00bfff
+		stroke: $active-color
 		stroke-width: 2px
 
 	.chart__cursor-point
-		fill: #00bfff
+		fill: $active-color
 
 	.chart__bubble-cover
 		width: 100px

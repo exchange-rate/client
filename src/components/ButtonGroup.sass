@@ -1,5 +1,7 @@
+@import "../styles/variables"
+
 .button
-	border: none
+	border: 1px solid $active-color
 	background-color: transparent
 	font: 12px Verdana
 	margin: 0
@@ -12,4 +14,22 @@
 		cursor: pointer
 
 	&._selected
-		background-color: #ffe800
+		color: #fff
+		background-color: $active-color
+
+	&._first-in-group
+		border-top-right-radius: 0
+		border-bottom-right-radius: 0
+
+	&._middle-in-group
+		border-left: none
+		border-radius: 0
+
+	&._last-in-group
+		border-left: none
+		border-top-left-radius: 0
+		border-bottom-left-radius: 0
+
+
+.button-group
+	white-space: nowrap
