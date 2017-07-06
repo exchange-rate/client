@@ -17,12 +17,14 @@ function formatDate(date) {
 	const hours = date.getHours();
 	const minutes = pad(date.getMinutes(), 2);
 
-	return `${day}, ${hours}:${minutes}`;
+	return `${day} ${hours}:${minutes}`;
 }
 
 export default class extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this.bubbleEl = null;
 
 		this._onOver = this._onOver.bind(this);
 		this._onMove = this._onMove.bind(this);
@@ -102,6 +104,24 @@ export default class extends React.Component {
 
 		const { x, y } = points[this.state.cursor];
 
+		let bubbleWidth = 0;
+		let bubbleHeight = 0;
+
+		if (this.bubbleEl) {
+			const boundingBox = this.bubbleEl.getBoundingClientRect();
+			bubbleWidth = boundingBox.width;
+			bubbleHeight = boundingBox.height;
+		}
+
+		const xPos = Math.max(10, Math.min(x - bubbleWidth / 2, chartWidth - bubbleWidth - 10));
+		let yPos = 0;
+
+		if (y < bubbleHeight) {
+			yPos = y + 10;
+		} else {
+			yPos = y - bubbleHeight - 10;
+		}
+
 		return (
 			<g>
 				<line
@@ -118,11 +138,10 @@ export default class extends React.Component {
 					className="chart__cursor-point"
 					r="4"
 				/>
-				<foreignObject y={ y } style={{ '--x': x + 'px' }} dominantBaseline="central" className="chart__bubble-cover">
+				<foreignObject x={ xPos } y={ yPos } dominantBaseline="central" className="chart__bubble-cover" ref={ el => this.bubbleEl = el }>
 					<div className="chart__bubble" xmlns="http://www.w3.org/1999/xhtml">
-						{ this.props.values[this.state.cursor].value }
-						<br/>
-						<small>{ formatDate(this.props.values[this.state.cursor].date) }</small>
+						<div className="chart__bubble-value">{ this.props.values[this.state.cursor].value }</div>
+						<div className="chart__bubble-date">{ formatDate(this.props.values[this.state.cursor].date) }</div>
 					</div>
 				</foreignObject>
 			</g>
