@@ -1,9 +1,8 @@
 @import "../styles/variables"
 
 .button
-	border: 1px solid $active-color
+	border: 1px solid rgba($active-color, .5)
 	background-color: transparent
-	font: 12px Verdana
 	margin: 0
 	padding: 3px 8px 4px
 	outline: none
@@ -31,5 +30,9 @@
 		border-bottom-left-radius: 0
 
 
+
 .button-group
 	white-space: nowrap
+
+	& > .button + .button
+		margin-left: -1px
